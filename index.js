@@ -16,7 +16,10 @@ app.use(cors());
 // Inicializa la base de datos SQLite
 const db = new sqlite3.Database("./database.db", async (err) => {
   const dbExist = fs.existsSync("./database.db");
-  if (dbExist) return;
+  if (dbExist) {
+    console.log("Base de datos ya creada")
+    return;
+  };
   if (err) {
     console.error("Error al abrir la base de datos:", err.message);
   } else {
