@@ -5,6 +5,7 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const { isSpam } = require("./lib");
 const lorca = require("lorca-nlp");
+const fs = require("fs");
 
 const SECRET = require("./secret").secret; // Cambia esto en producción
 
@@ -14,6 +15,8 @@ app.use(cors());
 
 // Inicializa la base de datos SQLite
 const db = new sqlite3.Database("./database.db", async (err) => {
+  const dbExist = fs.existsSync("./database.db");
+  if (dbExist) return;
   if (err) {
     console.error("Error al abrir la base de datos:", err.message);
   } else {
@@ -101,7 +104,12 @@ app.post("/api/login", (req, res) => {
         expiresIn: "1h",
       }
     );
-    res.json({ message: "Login correcto", token, username: user.username, role: user.role });
+    res.json({
+      message: "Login correcto",
+      token,
+      username: user.username,
+      role: user.role,
+    });
   });
 });
 
@@ -144,7 +152,7 @@ app.post("/api/comments", (req, res) => {
 // Obtener comentarios de una estación
 app.get("/api/comments/:station_id", (req, res) => {
   db.all(
-    "SELECT username, comment, created_at FROM comments WHERE station_id = ? ORDER BY created_at DESC",
+    "SELECT id, username, comment, created_at FROM comments WHERE station_id = ? ORDER BY created_at DESC",
     [req.params.station_id],
     (err, rows) => {
       if (err)
@@ -158,7 +166,7 @@ app.get("/api/comments/:station_id", (req, res) => {
 });
 
 // Eliminar comentario
-app.delete("/comments/:id", (req, res) => {
+app.delete("/api/comments/:id", (req, res) => {
   const token = req.body.token;
   const commentId = req.params.id;
 
