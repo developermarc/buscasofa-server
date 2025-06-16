@@ -101,7 +101,7 @@ app.post("/api/login", (req, res) => {
         expiresIn: "1h",
       }
     );
-    res.json({ message: "Login correcto", token, username: user.username });
+    res.json({ message: "Login correcto", token, username: user.username, role: user.role });
   });
 });
 
@@ -119,9 +119,8 @@ app.post("/api/comments", (req, res) => {
   }
 
   const doc = lorca(comment);
-  const sentiment = doc.sentiment(); // → "positive", "neutral", or "negative"
+  const sentiment = doc.sentiment();
   const isNegativeComment = sentiment < 0;
-  console.log(isNegativeComment);
   const spam = isSpam(comment);
   if (isNegativeComment || spam) {
     return res
